@@ -38,6 +38,7 @@ android {
 repositories {
     google()
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 
@@ -47,4 +48,5 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:$androidxLocalbroadcastmanagerVersion"
     implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
+    implementation 'com.github.schrooom:location-privacy-toolkit-android:1.0.0'
 }
