@@ -1,13 +1,24 @@
 package com.equimaps.capacitor_background_geolocation;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+
+import de.fh.muenster.locationprivacytoolkit.LocationPrivacyToolkit;
 
 import com.getcapacitor.Logger;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -17,6 +28,7 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.HashSet;
 
+import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 // A bound and started service that is promoted to a foreground service when
@@ -36,6 +48,30 @@ public class BackgroundGeolocationService extends Service {
     // Must be unique for this application.
     private static final int NOTIFICATION_ID = 28351;
 
+    private LocationManager locationManager;
+    private Criteria criteria;
+    private boolean isStarted = false;
+    private LocationPrivacyToolkit mLocationListener;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Location criteria
+        criteria = new Criteria();
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setSpeedRequired(true);
+        criteria.setCostAllowed(true);
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return binder;
+    }
+
     private class Watcher {
         public String id;
         public FusedLocationProviderClient client;
@@ -43,26 +79,8 @@ public class BackgroundGeolocationService extends Service {
         public LocationCallback locationCallback;
         public Notification backgroundNotification;
     }
+
     private HashSet<Watcher> watchers = new HashSet<Watcher>();
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return binder;
-    }
-
-    // Some devices allow a foreground service to outlive the application's main
-    // activity, leading to nasty crashes as reported in issue #59. If we learn
-    // that the application has been killed, all watchers are stopped and the
-    // service is terminated immediately.
-    @Override
-    public boolean onUnbind(Intent intent) {
-        for (Watcher watcher : watchers) {
-            watcher.client.removeLocationUpdates(watcher.locationCallback);
-        }
-        watchers = new HashSet<Watcher>();
-        stopSelf();
-        return false;
-    }
 
     Notification getNotification() {
         for (Watcher watcher : watchers) {
@@ -80,19 +98,12 @@ public class BackgroundGeolocationService extends Service {
                 Notification backgroundNotification,
                 float distanceFilter
         ) {
-            FusedLocationProviderClient client = LocationServices.getFusedLocationProviderClient(
-                    BackgroundGeolocationService.this
-            );
-            LocationRequest locationRequest = new LocationRequest();
-            locationRequest.setMaxWaitTime(1000);
-            locationRequest.setInterval(1000);
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setSmallestDisplacement(distanceFilter);
+            Context context = getApplicationContext();
 
-            LocationCallback callback = new LocationCallback(){
+            mLocationListener = new LocationPrivacyToolkit(context, null) {
                 @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    Location location = locationResult.getLastLocation();
+                public void onLocationChanged(final Location location) {
+                    Logger.debug("Location received");
                     Intent intent = new Intent(ACTION_BROADCAST);
                     intent.putExtra("location", location);
                     intent.putExtra("id", id);
@@ -100,44 +111,59 @@ public class BackgroundGeolocationService extends Service {
                             getApplicationContext()
                     ).sendBroadcast(intent);
                 }
+
                 @Override
-                public void onLocationAvailability(LocationAvailability availability) {
-                    if (!availability.isLocationAvailable()) {
-                        Logger.debug("Location not available");
-                    }
+                public void onProviderDisabled(String provider) {
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
                 }
             };
 
-            Watcher watcher = new Watcher();
-            watcher.id = id;
-            watcher.client = client;
-            watcher.locationRequest = locationRequest;
-            watcher.locationCallback = callback;
-            watcher.backgroundNotification = backgroundNotification;
-            watchers.add(watcher);
 
-            // According to Android Studio, this method can throw a Security Exception if
-            // permissions are not yet granted. Rather than check the permissions, which is fiddly,
-            // we simply ignore the exception.
-            try {
-                watcher.client.requestLocationUpdates(
-                        watcher.locationRequest,
-                        watcher.locationCallback,
-                        null
-                );
-            } catch (SecurityException ignore) {}
+            Logger.debug("Google Play Services not available, using Android location APIs");
+            criteria.setAccuracy(Criteria.ACCURACY_FINE);
+            criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+            criteria.setPowerRequirement(Criteria.POWER_HIGH);
+            if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(locationManager.getBestProvider(criteria, true), 1000, distanceFilter, mLocationListener);
+
         }
 
         void removeWatcher(String id) {
-            for (Watcher watcher : watchers) {
-                if (watcher.id.equals(id)) {
-                    watcher.client.removeLocationUpdates(watcher.locationCallback);
-                    watchers.remove(watcher);
-                    if (getNotification() == null) {
-                        stopForeground(true);
+            int gmsResultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
+            if (gmsResultCode == ConnectionResult.SUCCESS) {
+                for (Watcher watcher : watchers) {
+                    if (watcher.id.equals(id)) {
+                        watcher.client.removeLocationUpdates(watcher.locationCallback);
+                        watchers.remove(watcher);
+                        if (getNotification() == null) {
+                            stopForeground(true);
+                        }
+                        return;
                     }
-                    return;
                 }
+            } else {
+                Logger.debug("Location Listener removed");
+                locationManager.removeUpdates(mLocationListener);
+                if (getNotification() == null) {
+                    stopForeground(true);
+                }
+                return;
             }
         }
 
@@ -146,6 +172,16 @@ public class BackgroundGeolocationService extends Service {
             // the Settings app, the watchers need restarting.
             for (Watcher watcher : watchers) {
                 watcher.client.removeLocationUpdates(watcher.locationCallback);
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
                 watcher.client.requestLocationUpdates(
                         watcher.locationRequest,
                         watcher.locationCallback,
@@ -161,18 +197,7 @@ public class BackgroundGeolocationService extends Service {
         void onActivityStopped() {
             Notification notification = getNotification();
             if (notification != null) {
-                try {
-                    // Android 12 has a bug
-                    // (https://issuetracker.google.com/issues/229000935)
-                    // whereby it mistakenly thinks the app is in the
-                    // foreground at this point, even though it is not. This
-                    // causes a ForegroundServiceStartNotAllowedException to be
-                    // raised, crashing the app unless we suppress it here.
-                    // See issue #86.
-                    startForeground(NOTIFICATION_ID, notification);
-                } catch (Exception exception) {
-                    Logger.error("Failed to start service", exception);
-                }
+                startForeground(NOTIFICATION_ID, notification);
             }
         }
 
