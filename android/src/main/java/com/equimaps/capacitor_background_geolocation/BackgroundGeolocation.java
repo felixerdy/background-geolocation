@@ -186,9 +186,7 @@ public class BackgroundGeolocation extends Plugin {
 
     @PluginMethod()
     public void openSettings(PluginCall call) {
-        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-        Uri uri = Uri.fromParts("package", getContext().getPackageName(), null);
-        intent.setData(uri);
+        Intent intent = new Intent(getContext(), LocationPrivacyConfigActivity.class);
         getContext().startActivity(intent);
         call.resolve();
     }
