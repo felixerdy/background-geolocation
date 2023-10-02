@@ -32,6 +32,9 @@ import org.json.JSONObject;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
+
+
 @NativePlugin(
         permissions={
                 // As of API level 31, the coarse permission MUST accompany

@@ -105,7 +105,7 @@ public class BackgroundGeolocationService extends Service {
                 public void onLocationChanged(final Location location) {
                     Logger.debug("Location received");
                     Intent intent = new Intent(ACTION_BROADCAST);
-                    intent.putExtra("location", location);
+                    intent.putExtra("location", mLocationListener.processLocation(location));
                     intent.putExtra("id", id);
                     LocalBroadcastManager.getInstance(
                             getApplicationContext()
