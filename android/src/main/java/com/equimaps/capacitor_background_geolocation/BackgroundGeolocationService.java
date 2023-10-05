@@ -52,6 +52,7 @@ public class BackgroundGeolocationService extends Service {
     private Criteria criteria;
     private boolean isStarted = false;
     private LocationPrivacyToolkit mLocationListener;
+    private LocationPrivacyToolkit mExternalLocationListener;
 
     @Override
     public void onCreate() {
@@ -203,6 +204,13 @@ public class BackgroundGeolocationService extends Service {
 
         void stopService() {
             BackgroundGeolocationService.this.stopSelf();
+        }
+
+        void processLocation(Location location) {
+            if(mExternalLocationListener == null) {
+                mExternalLocationListener = new LocationPrivacyToolkit(context, null);
+            }
+            return mLocationListener.processLocation(location);
         }
     }
 }

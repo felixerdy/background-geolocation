@@ -171,6 +171,13 @@ public class BackgroundGeolocation : CAPPlugin, CLLocationManagerDelegate {
         }
     }
 
+    @objc func processLocation(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            let location = call.getObject("location") ?? [:]
+            call.resolve(location)
+        }
+    }
+
     public func locationManager(
         _ manager: CLLocationManager,
         didFailWithError error: Error

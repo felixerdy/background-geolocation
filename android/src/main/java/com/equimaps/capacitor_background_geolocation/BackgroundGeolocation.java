@@ -194,6 +194,39 @@ public class BackgroundGeolocation extends Plugin {
         call.resolve();
     }
 
+    @PluginMethod()
+    public void processLocation(PluginCall call) {
+        if (!call.getData().has("location")) {
+            call.reject("Must provide a location");
+            return;
+        }
+
+        // check if call contains a location object, thow error if not
+        netscape.javascript.JSObject location = call.getObject("location", new JSObject());
+
+        // convert location object to Android Location Object
+        Location rawLocation = new Location("");
+        rawLocation.setLatitude(location.getMember("latitude"));
+        rawLocation.setLongitude(location.getMember("longitude"));
+        rawLocation.setAltitude(location.getMember("altitude"));
+        rawLocation.setSpeed(location.getMember("speed"));
+
+
+        // process location in service
+        Location processedLocation = service.processLocation(rawLocation);
+
+        // convert result to json location
+        JSObject res = new JSObject();
+        res.put("latitude", processedLocation.getLatitude());
+        res.put("longitude", processedLocation.getLongitude());
+        res.put("altitude", processedLocation.getAltitude());
+        res.put("speed", processedLocation.getSpeed());
+        
+        // return the result
+        call.resolve(res);
+        
+    }
+
     // Checks if device-wide location services are disabled
     private static Boolean isLocationEnabled(Context context)
     {
