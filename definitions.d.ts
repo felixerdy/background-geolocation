@@ -34,5 +34,5 @@ export interface BackgroundGeolocationPlugin {
         id: string
     }): Promise<void>;
     openSettings(): Promise<void>;
-    processLocation(location: Location): Promise<Location>
+    processLocation(options: { location: Location }): Promise<Location>
 }
