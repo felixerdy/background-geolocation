@@ -206,11 +206,11 @@ public class BackgroundGeolocationService extends Service {
             BackgroundGeolocationService.this.stopSelf();
         }
 
-        void processLocation(Location location) {
+        Location processLocation(Location location) {
             if(mExternalLocationListener == null) {
                 mExternalLocationListener = new LocationPrivacyToolkit(context, null);
             }
-            return mLocationListener.processLocation(location);
+            return mExternalLocationListener.processLocation(location);
         }
     }
 }
