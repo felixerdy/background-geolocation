@@ -1,10 +1,10 @@
 {
-    "name": "@capacitor-community/background-geolocation",
-    "version": "1.2.14",
+    "name": "@felixerdy/background-geolocation",
+    "version": "1.2.15",
     "description": "Receive geolocation updates even while the app is in the background.",
     "repository": {
         "type": "git",
-        "url": "https://github.com/capacitor-community/background-geolocation"
+        "url": "https://github.com/felixerdy/background-geolocation"
     },
     "license": "MIT",
     "author": "James Diacono",
@@ -19,7 +19,7 @@
         "android/src/main/",
         "ios/Podfile*",
         "ios/Plugin/Info.plist",
-        "CapacitorCommunityBackgroundGeolocation.podspec",
+        "FelixerdyBackgroundGeolocation.podspec",
         "definitions.d.ts"
     ],
     "devDependencies": {
