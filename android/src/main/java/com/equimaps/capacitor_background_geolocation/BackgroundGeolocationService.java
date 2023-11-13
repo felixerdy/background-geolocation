@@ -208,7 +208,7 @@ public class BackgroundGeolocationService extends Service {
 
         Location processLocation(Location location) {
             if(mExternalLocationListener == null) {
-                mExternalLocationListener = new LocationPrivacyToolkit(context, null);
+                mExternalLocationListener = new LocationPrivacyToolkit(getApplicationContext(), null);
             }
             return mExternalLocationListener.processLocation(location);
         }
