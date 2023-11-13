@@ -217,7 +217,8 @@ public class BackgroundGeolocation extends Plugin {
             Location processedLocation = service.processLocation(rawLocation);
 
             // convert result to json location
-            JSObject res = formatLocation(processedLocation);
+            JSObject res = new JSObject();
+            res.put("location", formatLocation(processedLocation));
 
             // return the result
             call.resolve(res);
