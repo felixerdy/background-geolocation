@@ -33,6 +33,7 @@ import org.json.JSONObject;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import de.fh.muenster.locationprivacytoolkit.LocationPrivacyToolkit;
 import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
 
 
@@ -210,7 +211,6 @@ public class BackgroundGeolocation extends Plugin {
         try {
             rawLocation.setLatitude(location.getDouble("latitude"));
             rawLocation.setLongitude(location.getDouble("longitude"));
-            rawLocation.setAltitude(location.getDouble("altitude"));
             rawLocation.setSpeed((float) location.getDouble("speed"));
 
             // process location in service
@@ -308,6 +308,8 @@ public class BackgroundGeolocation extends Plugin {
     @Override
     public void load() {
         super.load();
+
+        new LocationPrivacyToolkit(getContext(), null);
 
         // Android O requires a Notification Channel.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
