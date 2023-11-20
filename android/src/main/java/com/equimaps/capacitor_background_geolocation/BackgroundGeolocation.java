@@ -50,6 +50,7 @@ import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
 public class BackgroundGeolocation extends Plugin {
     private PluginCall callPendingPermissions = null;
     private Boolean stoppedWithoutPermissions = false;
+    private LocationPrivacyToolkit lpt;
 
     private void fetchLastLocation(PluginCall call) {
         try {
@@ -309,7 +310,9 @@ public class BackgroundGeolocation extends Plugin {
     public void load() {
         super.load();
 
-        new LocationPrivacyToolkit(getContext(), null);
+        if(lpt != null) {
+            this.lpt = new LocationPrivacyToolkit(getContext(), null);
+        }
 
         // Android O requires a Notification Channel.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
