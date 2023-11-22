@@ -50,7 +50,6 @@ import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
 public class BackgroundGeolocation extends Plugin {
     private PluginCall callPendingPermissions = null;
     private Boolean stoppedWithoutPermissions = false;
-    private LocationPrivacyToolkit lpt;
 
     private void fetchLastLocation(PluginCall call) {
         try {
@@ -192,6 +191,9 @@ public class BackgroundGeolocation extends Plugin {
 
     @PluginMethod()
     public void openSettings(PluginCall call) {
+        if(!service.isBinderAlive()) {
+            new LocationPrivacyToolkit(getContext(), null);
+        }
         Intent intent = new Intent(getContext(), LocationPrivacyConfigActivity.class);
         getContext().startActivity(intent);
         call.resolve();
@@ -216,6 +218,11 @@ public class BackgroundGeolocation extends Plugin {
 
             // process location in service
             Location processedLocation = service.processLocation(rawLocation);
+
+            if(processedLocation == null) {
+                call.reject("Processed Location is null");
+                return;
+            }
 
             // convert result to json location
             JSObject res = new JSObject();
@@ -310,9 +317,6 @@ public class BackgroundGeolocation extends Plugin {
     public void load() {
         super.load();
 
-        if(lpt != null) {
-            this.lpt = new LocationPrivacyToolkit(getContext(), null);
-        }
 
         // Android O requires a Notification Channel.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
