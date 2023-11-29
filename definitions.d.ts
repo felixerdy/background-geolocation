@@ -22,7 +22,7 @@ export interface CallbackError extends Error {
     code?: string;
 }
 
-export interface BackgroundGeolocationPlugin {
+export interface SIMPORTBackgroundGeolocationPlugin {
     addWatcher(
         options: WatcherOptions,
         callback: (

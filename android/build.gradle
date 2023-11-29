@@ -16,7 +16,7 @@ buildscript {
 apply plugin: 'com.android.library'
 
 android {
-    namespace "com.equimaps.capacitor_background_geolocation"
+    namespace "de.reedu.capacitor_background_geolocation"
     compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 33
     defaultConfig {
         minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 22
@@ -51,5 +51,5 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
     implementation "androidx.localbroadcastmanager:localbroadcastmanager:$androidxLocalbroadcastmanagerVersion"
     implementation "com.google.android.gms:play-services-location:$playServicesLocationVersion"
-    implementation 'com.github.schrooom:location-privacy-toolkit-android:feat~open-class-SNAPSHOT'
+    implementation 'com.github.schrooom:location-privacy-toolkit-android:fix~material-button-SNAPSHOT'
 }
