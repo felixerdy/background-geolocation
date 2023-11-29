@@ -45,7 +45,7 @@ import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
                 Manifest.permission.ACCESS_FINE_LOCATION
         },
         // A random integer which is hopefully unique to this plugin.
-        permissionRequestCode = 28351
+        permissionRequestCode = 28352
 )
 public class SIMPORTBackgroundGeolocation extends Plugin {
     private PluginCall callPendingPermissions = null;
