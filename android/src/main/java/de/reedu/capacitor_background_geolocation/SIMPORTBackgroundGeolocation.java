@@ -1,4 +1,4 @@
-package com.equimaps.capacitor_background_geolocation;
+package de.reedu.capacitor_background_geolocation;
 
 import android.Manifest;
 import android.app.Notification;
@@ -45,9 +45,9 @@ import de.fh.muenster.locationprivacytoolkit.ui.LocationPrivacyConfigActivity;
                 Manifest.permission.ACCESS_FINE_LOCATION
         },
         // A random integer which is hopefully unique to this plugin.
-        permissionRequestCode = 28351
+        permissionRequestCode = 28352
 )
-public class BackgroundGeolocation extends Plugin {
+public class SIMPORTBackgroundGeolocation extends Plugin {
     private PluginCall callPendingPermissions = null;
     private Boolean stoppedWithoutPermissions = false;
 
@@ -137,7 +137,7 @@ public class BackgroundGeolocation extends Plugin {
 
             // Set the Channel ID for Android O.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder.setChannelId(BackgroundGeolocationService.class.getPackage().getName());
+                builder.setChannelId(SIMPORTBackgroundGeolocationService.class.getPackage().getName());
             }
 
             backgroundNotification = builder.build();
@@ -278,7 +278,7 @@ public class BackgroundGeolocation extends Plugin {
     }
 
     // Sends messages to the service.
-    private BackgroundGeolocationService.LocalBinder service = null;
+    private SIMPORTBackgroundGeolocationService.LocalBinder service = null;
 
     // Receives messages from the service.
     private class ServiceReceiver extends BroadcastReceiver {
@@ -324,7 +324,7 @@ public class BackgroundGeolocation extends Plugin {
                     Context.NOTIFICATION_SERVICE
             );
             NotificationChannel channel = new NotificationChannel(
-                    BackgroundGeolocationService.class.getPackage().getName(),
+                    SIMPORTBackgroundGeolocationService.class.getPackage().getName(),
                     getAppString(
                             "capacitor_background_geolocation_notification_channel_name",
                             "Background Tracking"
@@ -338,11 +338,11 @@ public class BackgroundGeolocation extends Plugin {
         }
 
         this.getContext().bindService(
-                new Intent(this.getContext(), BackgroundGeolocationService.class),
+                new Intent(this.getContext(), SIMPORTBackgroundGeolocationService.class),
                 new ServiceConnection() {
                     @Override
                     public void onServiceConnected(ComponentName name, IBinder binder) {
-                        BackgroundGeolocation.this.service = (BackgroundGeolocationService.LocalBinder) binder;
+                        SIMPORTBackgroundGeolocation.this.service = (SIMPORTBackgroundGeolocationService.LocalBinder) binder;
                     }
 
                     @Override
@@ -354,7 +354,7 @@ public class BackgroundGeolocation extends Plugin {
 
         LocalBroadcastManager.getInstance(this.getContext()).registerReceiver(
                 new ServiceReceiver(),
-                new IntentFilter(BackgroundGeolocationService.ACTION_BROADCAST)
+                new IntentFilter(SIMPORTBackgroundGeolocationService.ACTION_BROADCAST)
         );
     }
 

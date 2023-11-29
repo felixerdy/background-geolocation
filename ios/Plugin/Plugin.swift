@@ -65,8 +65,8 @@ class Watcher {
     }
 }
 
-@objc(BackgroundGeolocation)
-public class BackgroundGeolocation : CAPPlugin, CLLocationManagerDelegate {
+@objc(SIMPORTBackgroundGeolocation)
+public class SIMPORTBackgroundGeolocation : CAPPlugin, CLLocationManagerDelegate {
     private var watchers = [Watcher]()
 
     @objc public override func load() {

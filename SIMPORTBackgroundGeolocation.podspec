@@ -1,6 +1,6 @@
 
   Pod::Spec.new do |s|
-    s.name = 'FelixerdyBackgroundGeolocation'
+    s.name = 'SIMPORTBackgroundGeolocation'
     s.version = '0.0.1'
     s.summary = 'Capacitor plugin which lets you receive geolocation updates even while the app is backgrounded.'
     s.license = 'MIT'

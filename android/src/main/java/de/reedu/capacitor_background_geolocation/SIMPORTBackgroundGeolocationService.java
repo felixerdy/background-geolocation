@@ -1,4 +1,4 @@
-package com.equimaps.capacitor_background_geolocation;
+package de.reedu.capacitor_background_geolocation;
 
 import android.Manifest;
 import android.app.Notification;
@@ -39,9 +39,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 // promotes itself to a foreground service, and location updates continue. When
 // the activity comes back to the foreground, the foreground service stops, and
 // the notification associated with that service is removed.
-public class BackgroundGeolocationService extends Service {
+public class SIMPORTBackgroundGeolocationService extends Service {
     static final String ACTION_BROADCAST = (
-            BackgroundGeolocationService.class.getPackage().getName() + ".broadcast"
+        SIMPORTBackgroundGeolocationService.class.getPackage().getName() + ".broadcast"
     );
     private final IBinder binder = new LocalBinder();
 
@@ -203,7 +203,7 @@ public class BackgroundGeolocationService extends Service {
         }
 
         void stopService() {
-            BackgroundGeolocationService.this.stopSelf();
+            SIMPORTBackgroundGeolocationService.this.stopSelf();
         }
 
         Location processLocation(Location location) {
